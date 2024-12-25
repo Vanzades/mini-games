@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tank Tembak Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #gameCanvas {
+            display: block;
+            background-color: #111;
+            border: 2px solid #fff;
+        }
+
+        #levelDisplay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #fff;
+            font-size: 20px;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="levelDisplay">Level: 1</div>
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        // Setup canvas
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const levelDisplay = document.getElementById('levelDisplay');
+
+        // Game variables
+        let level = 1;
+        let blocks = [];
+
+        // Tank setup
+        const tank = {
+            x: canvas.width / 2 - 25,
+            y: canvas.height - 60,
+            width: 50,
+            height: 30,
+            speed: 5
+        };
+
+        // Bullets setup
+        const bullets = [];
+
+        // Block setup
+        const blockWidth = 60;
+        const blockHeight = 30;
+        const blockPadding = 10;
+
+        function createBlocks() {
+            blocks = [];
+            const blockRows = level + 4; // Increase rows with levels
+            const blockCols = 10;
+            for (let row = 0; row < blockRows; row++) {
+                for (let col = 0; col < blockCols; col++) {
+                    blocks.push({
+                        x: col * (blockWidth + blockPadding) + 50,
+                        y: row * (blockHeight + blockPadding) + 50,
+                        width: blockWidth,
+                        height: blockHeight,
+                        destroyed: false
+                    });
+                }
+            }
+        }
+
+        createBlocks();
+
+        // Controls
+        const keys = {};
+        window.addEventListener('keydown', (e) => (keys[e.key] = true));
+        window.addEventListener('keyup', (e) => (keys[e.key] = false));
+
+        // Game loop
+        function gameLoop() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw tank
+            ctx.fillStyle = 'green';
+            ctx.fillRect(tank.x, tank.y, tank.width, tank.height);
+
+            // Move tank
+            if (keys['ArrowLeft'] && tank.x > 0) {
+                tank.x -= tank.speed;
+            }
+            if (keys['ArrowRight'] && tank.x + tank.width < canvas.width) {
+                tank.x += tank.speed;
+            }
+
+            // Shoot bullets
+            if (keys[' '] && bullets.length < 5) {
+                bullets.push({ x: tank.x + tank.width / 2 - 5, y: tank.y, width: 10, height: 10, speed: 7 });
+            }
+
+            // Draw bullets
+            bullets.forEach((bullet, index) => {
+                bullet.y -= bullet.speed;
+                ctx.fillStyle = 'yellow';
+                ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+
+                // Remove bullets that go off screen
+                if (bullet.y + bullet.height < 0) {
+                    bullets.splice(index, 1);
+                }
+            });
+
+            // Draw blocks
+            let allDestroyed = true;
+            blocks.forEach((block) => {
+                if (!block.destroyed) {
+                    allDestroyed = false;
+                    ctx.fillStyle = 'red';
+                    ctx.fillRect(block.x, block.y, block.width, block.height);
+                }
+            });
+
+            // Collision detection
+            bullets.forEach((bullet, bulletIndex) => {
+                blocks.forEach((block) => {
+                    if (!block.destroyed &&
+                        bullet.x < block.x + block.width &&
+                        bullet.x + bullet.width > block.x &&
+                        bullet.y < block.y + block.height &&
+                        bullet.y + bullet.height > block.y
+                    ) {
+                        block.destroyed = true;
+                        bullets.splice(bulletIndex, 1);
+                    }
+                });
+            });
+
+            // Check level progression
+            if (allDestroyed) {
+                level++;
+                levelDisplay.textContent = `Level: ${level}`;
+                createBlocks();
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>
