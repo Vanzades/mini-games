@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Block Blast Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="scoreboard">
+    <span class="crown">👑</span>
+    <span id="bestScore">0</span>
+    <div class="settings">⚙️</div>
+  </div>
+  <div id="currentScore">0</div>
+  <div id="board" class="board"></div>
+  <div class="blocks" id="blockChoices"></div>
+
+  <div class="game-over" id="gameOver">
+    <h1>Game Over</h1>
+    <p>Score</p>
+    <div id="finalScore">0</div>
+    <p>Best Score</p>
+    <div id="finalBestScore">0</div>
+    <button onclick="startGame()">▶️</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
